@@ -25,10 +25,11 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #define DLL
 
 #include <inttypes.h>
-#include <NIDAQmx.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <NIDAQmx.h>
 
 #include "RMCIOS-functions.h"
 
