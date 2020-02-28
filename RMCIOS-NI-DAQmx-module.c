@@ -72,14 +72,14 @@ void ni_device_func (struct ni_device_data *this,
                      const struct context_rmcios *context, int id,
                      enum function_rmcios function,
                      enum type_rmcios paramtype,
-                     union param_rmcios returnv,
+                     struct combo_rmcios *returnv,
                      int num_params, const union param_rmcios param)
 {
    int i;
    switch (function)
    {
    case help_rmcios:
-      return_string (context, paramtype, returnv,
+      return_string (context, returnv,
                      "help for niai device. Commands:\r\n"
                      "create nidev newname \r\n"
                      "setup newname device_name | sample_rate | samples \r\n"
@@ -153,7 +153,6 @@ void ni_device_func (struct ni_device_data *this,
          int32 read = 0;
          int ch;
          int i;
-         float freturn;
          float64 buffer[this->samples * this->channels];
          float values[this->channels];
 
@@ -194,12 +193,12 @@ void ni_device_func (struct ni_device_data *this,
                this->values[ch] /= this->samples;
             }
             //int channel,
-            context->run_channel (context, linked_channels (context, id), 
+            run_channel (context, linked_channels (context, id), 
                                   write_rmcios, 
                                   float_rmcios, 
-                                  (union param_rmcios) &freturn, 
+                                  0, 
                                   this->channels,       
-                                  (const union param_rmcios) this->values); 
+                                  (const union param_rmcios)this->values); 
          }
       }
       break;
@@ -211,8 +210,8 @@ void ni_device_func (struct ni_device_data *this,
          int i;
          for (i = 0; i < this->channels; i++)
          {
-            return_float (context, paramtype, returnv, this->values[i]);
-            return_string (context, paramtype, returnv, " ");
+            return_float (context, returnv, this->values[i]);
+            return_string (context, returnv, " ");
          }
       }
       break;
@@ -230,13 +229,13 @@ void nidaq_ai_func (struct niai_data *this,
                     const struct context_rmcios *context, int id,
                     enum function_rmcios function,
                     enum type_rmcios paramtype,
-                    union param_rmcios returnv,
+                    struct combo_rmcios *returnv,
                     int num_params, const union param_rmcios param)
 {
    switch (function)
    {
    case help_rmcios:
-      return_string (context, paramtype, returnv,
+      return_string (context, returnv,
                      "help for niai - NI analog input\r\n"
                      " create niai newname\r\n"
                      " setup newname ni_device_channel | terminal\r\n"
@@ -350,7 +349,7 @@ void nidaq_ai_func (struct niai_data *this,
                                    device->samples)); // sampsPerChanToAcquire);
 
          DAQmxErrChk (DAQmxStartTask (device->task)); //(TaskHandle *taskHandle);
-         return_int (context, paramtype, returnv, device->channels - 1);
+         return_int (context, returnv, device->channels - 1);
       }
 
       break;
@@ -358,7 +357,7 @@ void nidaq_ai_func (struct niai_data *this,
    case read_rmcios:
       if (this == NULL)
          break;
-      return_float (context, paramtype, returnv, this->value);
+      return_float (context, returnv, this->value);
       break;
 
    case write_rmcios:
@@ -388,13 +387,13 @@ void nidaq_ao_func (struct niao_data *this,
                     const struct context_rmcios *context, int id,
                     enum function_rmcios function,
                     enum type_rmcios paramtype,
-                    union param_rmcios returnv,
+                    struct combo_rmcios *returnv,
                     int num_params, const union param_rmcios param)
 {
    switch (function)
    {
    case help_rmcios:
-      return_string (context, paramtype, returnv,
+      return_string (context, returnv,
                      "help for niao.\r\n"
                      " create niao newname\r\n"
                      " setup newname device_channel terminal | minVal maxVal\r\n"
@@ -496,7 +495,7 @@ void nidaq_ao_func (struct niao_data *this,
    case read_rmcios:
       if (this == NULL)
          break;
-      return_float (context, paramtype, returnv, this->value);
+      return_float (context, returnv, this->value);
       break;
    }
 }
@@ -516,14 +515,14 @@ void nipwm_func (struct nipwm_data *this,
                  const struct context_rmcios *context, int id,
                  enum function_rmcios function,
                  enum type_rmcios paramtype,
-                 union param_rmcios returnv,
+                 struct combo_rmcios *returnv,
                  int num_params, const union param_rmcios param)
 {
    int32 written;
    switch (function)
    {
    case help_rmcios:
-      return_string (context, paramtype, returnv,
+      return_string (context, returnv,
                      "help for nipwm\r\n"
                      "create nipwm ch_name\r\n"
                      "setup ch_name frequency device_channel counter_resource"
@@ -661,7 +660,7 @@ void nipwm_func (struct nipwm_data *this,
    case read_rmcios:
       if (this == NULL)
          break;
-      return_float (context, paramtype, returnv, this->duty);
+      return_float (context, returnv, this->duty);
       break;
    }
 }
@@ -680,13 +679,13 @@ void nicounter_func (struct nicounter_data *this,
                      const struct context_rmcios *context, int id,
                      enum function_rmcios function,
                      enum type_rmcios paramtype,
-                     union param_rmcios returnv, int num_params,
-                     const union param_rmcios param)
+                     struct combo_rmcios *returnv,
+                     int num_params, const union param_rmcios param)
 {
    switch (function)
    {
    case help_rmcios:
-      return_string (context, paramtype, returnv,
+      return_string (context, returnv,
                      "help for nicounter.\r\n"
                      "create nicounter ch_name\r\n"
                      "setup ch_name device_channel counter | terminal\r\n"
@@ -781,7 +780,7 @@ void nicounter_func (struct nicounter_data *this,
                                               &this->counts, //uInt32 *value, 
                                               NULL));   //bool32 *reserved);
 
-      return_int (context, paramtype, returnv, this->counts - this->zero);
+      return_int (context, returnv, this->counts - this->zero);
       if (function == write_rmcios)
       {
          write_f (context, linked_channels (context, id),
@@ -803,13 +802,13 @@ void nido_func (struct nido_data *this,
                 const struct context_rmcios *context, int id,
                 enum function_rmcios function,
                 enum type_rmcios paramtype,
-                union param_rmcios returnv,
+                struct combo_rmcios *returnv,
                 int num_params, const union param_rmcios param)
 {
    switch (function)
    {
    case help_rmcios:
-      return_string (context, paramtype, returnv,
+      return_string (context, returnv,
                      "help for nido.\r\n"
                      "create nido newname\r\n"
                      "setup newname device_channel port line\r\n"
@@ -896,7 +895,7 @@ void nido_func (struct nido_data *this,
    case read_rmcios:
       if (this == NULL)
          break;
-      return_int (context, paramtype, returnv, this->value);
+      return_int (context, returnv, this->value);
       break;
    }
 }
