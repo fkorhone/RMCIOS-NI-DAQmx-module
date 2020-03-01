@@ -1,0 +1,21 @@
+LIBRARY "nicaiu.dll"
+EXPORTS
+DAQmxCreateTask
+DAQmxStopTask
+DAQmxStartTask
+DAQmxReadAnalogF64
+DAQmxCreateAIVoltageChan
+DAQmxCfgSampClkTiming
+DAQmxGetExtendedErrorInfo
+DAQmxClearTask
+DAQmxCreateAOVoltageChan
+DAQmxWriteAnalogScalarF64
+DAQmxWriteCtrFreq
+DAQmxCreateCOPulseChanFreq
+DAQmxCfgImplicitTiming
+DAQmxCreateCICountEdgesChan
+DAQmxSetCICountEdgesTerm
+DAQmxReadCounterScalarU32
+DAQmxCreateDOChan
+DAQmxWriteDigitalLines
+
