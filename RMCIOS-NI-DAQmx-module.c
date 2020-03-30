@@ -761,11 +761,9 @@ void nicounter_func (struct nicounter_data *this,
 
          if (num_params >= 3)
          {
-            DAQmxErrChk (
-               DAQmxSetCICountEdgesTerm (this->task,  
-                                         physicalChannel,
-                                         param_to_string (context, paramtype,
-                                                          param, 2, 0, NULL)));
+            char terminal_str[30];
+            param_to_string (context, paramtype, param, 2, sizeof(terminal_str), terminal_str);
+            DAQmxErrChk ( DAQmxSetCICountEdgesTerm (this->task, physicalChannel, terminal_str));
          }
          DAQmxErrChk (DAQmxStartTask (this->task));
       }
